@@ -3,128 +3,411 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Galería de Imágenes</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Google Fonts (ejemplo: Roboto) -->
-    <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet">
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="estilos.css">
+    <title>Mi Galería de Imágenes</title>
+    <!-- Bootstrap CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Tailwind CSS CDN (for font-family, can be combined with Bootstrap if desired) -->
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
+        /* Paleta de colores y tipografía */
+        :root {
+            --primary-color: #007bff; /* Azul de Bootstrap */
+            --secondary-color: #6c757d; /* Gris de Bootstrap */
+            --accent-color: #28a745; /* Verde para acentos */
+            --background-light: #f8f9fa; /* Fondo claro */
+            --text-dark: #343a40; /* Texto oscuro */
+            --text-light: #ffffff; /* Texto claro */
+        }
+
         body {
-            font-family: 'Roboto', Arial, sans-serif;
-            background-color: #f8f9fa;
+            font-family: 'Inter', sans-serif; /* Tipografía Inter */
+            background-color: var(--background-light);
+            color: var(--text-dark);
         }
-        .galeria-miniatura {
-            transition: transform 0.2s;
+
+        /* Estilos generales para secciones */
+        .page-section {
+            display: none; /* Oculta todas las secciones por defecto */
+            padding: 40px 0;
+            margin-top: 20px;
+        }
+
+        .page-section.active {
+            display: block; /* Muestra la sección activa */
+        }
+
+        /* Estilos para miniaturas de la galería */
+        .gallery-thumbnail {
             cursor: pointer;
-        }
-        .galeria-miniatura:hover {
-            transform: scale(1.05);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-        }
-        .categoria-btn.active {
-            background-color: #007bff;
-            color: #fff;
-        }
-        .detalle-img {
-            max-width: 100%;
             border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease-in-out;
         }
-        .form-control:invalid {
-            border-color: #dc3545;
+
+        .gallery-thumbnail:hover {
+            transform: translateY(-5px);
+        }
+
+        .gallery-thumbnail img {
+            width: 100%;
+            height: 200px; /* Altura fija para miniaturas */
+            object-fit: cover; /* Asegura que la imagen cubra el área sin distorsionarse */
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .gallery-thumbnail .card-body {
+            padding: 15px;
+        }
+
+        /* Estilos para el formulario de contacto */
+        .contact-form .form-control {
+            border-radius: 5px;
+            border: 1px solid #ced4da;
+            padding: 10px;
+            margin-bottom: 15px;
+        }
+
+        .contact-form .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            padding: 10px 20px;
+            border-radius: 5px;
+            transition: background-color 0.2s ease;
+        }
+
+        .contact-form .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+        }
+
+        /* Estilos para la vista de detalle de imagen */
+        #image-detail-view img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
         }
     </style>
 </head>
 <body>
-    <header class="bg-primary text-white p-3 mb-4">
-        <div class="container d-flex justify-content-between align-items-center">
-            <h1 class="h3 mb-0">Galería de Imágenes</h1>
-            <nav>
-                <a href="#inicio" class="text-white me-3">Inicio</a>
-                <a href="#galeria" class="text-white me-3">Galería</a>
-                <a href="#sobre-nosotros" class="text-white">Sobre nosotros</a>
-            </nav>
-        </div>
+
+    <!-- Header (Cabecera) -->
+    <header class="bg-primary text-white py-3 shadow-sm">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary container">
+            <a class="navbar-brand" href="#" onclick="showSection('home-page')">Mi Galería</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse show" id="navbarNav">
+                <!-- For desktop, ensure the navbar is always visible -->
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showSection('home-page')">Inicio</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showSection('gallery-page')">Galería</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showSection('about-us-page')">Sobre Nosotros</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
     </header>
 
-    <main class="container">
-        <!-- INICIO -->
-        <section id="inicio" class="mb-5">
-            <h2 class="mb-3">Destacados</h2>
-            <div class="row" id="destacados">
-                <!-- Imágenes destacadas (rellenadas por JS) -->
+    <!-- Main Content (Contenido Principal) -->
+    <main class="container mt-4">
+
+        <!-- Sección de Inicio -->
+        <section id="home-page" class="page-section active">
+            <h2 class="text-center mb-4">Bienvenidos a Nuestra Galería de Imágenes</h2>
+            <p class="text-center lead">Explora una colección diversa de imágenes impresionantes, organizadas por categorías.</p>
+            <h3 class="mt-5 mb-3">Imágenes Destacadas</h3>
+            <div id="featured-images" class="row g-4">
+                <!-- Las imágenes destacadas se cargarán aquí con JS -->
             </div>
-            <h3 class="mt-5 mb-3">Categorías</h3>
-            <div id="categorias" class="mb-3">
-                <!-- Botones de categorías (rellenados por JS) -->
+            
+            <h2 class="text-center mb-4 mb-4" style="margin-top: 20px;">Nuestra Galería Completa</h2>
+            <div class="d-flex flex-wrap justify-content-center gap-3 mb-4">
+                <button class="btn btn-outline-primary" onclick="filterImages('all')">Todas</button>
+                <button class="btn btn-outline-primary" onclick="filterImages('Autos')">Autos</button>
+                <button class="btn btn-outline-primary" onclick="filterImages('Paisajes')">Paisajes</button>
+                <button class="btn btn-outline-secondary" onclick="showSection('about-us-page')">Sobre Nosotros</button>
+            </div>
+            <div class="mb-4">
+                <input type="text" id="search-input" class="form-control" placeholder="Buscar imágenes por texto..." oninput="searchImages()">
+            </div>
+            <div id="gallery-grid" class="row g-4">
+                <!-- Las miniaturas de la galería se cargarán aquí con JS -->
+            </div>
+
+        
+        </section>
+
+        <!-- Sección de Galería -->
+        <section id="gallery-page" class="page-section">
+            <h2 class="text-center mb-4">Nuestra Galería Completa</h2>
+            <div class="d-flex flex-wrap justify-content-center gap-3 mb-4">
+                <button class="btn btn-outline-primary" onclick="filterImages('all')">Todas</button>
+                <button class="btn btn-outline-primary" onclick="filterImages('Autos')">Autos</button>
+                <button class="btn btn-outline-primary" onclick="filterImages('Paisajes')">Paisajes</button>
+                <button class="btn btn-outline-secondary" onclick="showSection('about-us-page')">Sobre Nosotros</button>
+            </div>
+            <div class="mb-4">
+                <input type="text" id="search-input" class="form-control" placeholder="Buscar imágenes por texto..." oninput="searchImages()">
+            </div>
+            <div id="gallery-grid" class="row g-4">
+                <!-- Las miniaturas de la galería se cargarán aquí con JS -->
             </div>
         </section>
 
-        <!-- GALERÍA -->
-        <section id="galeria" class="mb-5">
-            <h2 class="mb-3">Galería</h2>
-            <div class="row" id="galeria-lista">
-                <!-- Miniaturas de galería (rellenadas por JS) -->
+        <!-- Sección de Detalle de Imagen -->
+        <section id="image-detail-page" class="page-section">
+            <h2 class="text-center mb-4">Detalle de la Imagen</h2>
+            <div id="image-detail-view" class="row justify-content-center">
+                <!-- La vista detallada de la imagen se cargará aquí con JS -->
+            </div>
+            <div class="text-center mt-4">
+                <button class="btn btn-secondary" onclick="showSection('gallery-page')">Volver a la Galería</button>
             </div>
         </section>
 
-        <!-- DETALLE DE IMAGEN -->
-        <section id="detalle-imagen" class="mb-5" style="display:none;">
-            <button class="btn btn-secondary mb-3" id="volver-galeria">Volver a la galería</button>
-            <div class="row">
-                <div class="col-md-6">
-                    <img id="detalle-img" class="detalle-img" src="" alt="">
-                </div>
-                <div class="col-md-6">
-                    <h3 id="detalle-titulo"></h3>
-                    <p id="detalle-descripcion"></p>
-                    <p><strong>Autor:</strong> <span id="detalle-autor"></span></p>
-                </div>
-            </div>
-        </section>
-
-        <!-- SOBRE NOSOTROS -->
-        <section id="sobre-nosotros" class="mb-5">
-            <h2 class="mb-3">Sobre nosotros</h2>
-            <div class="row">
-                <div class="col-md-6">
-                    <p>Somos un equipo apasionado por la fotografía y el arte digital. Nuestra misión es compartir inspiración visual y conectar a creadores.</p>
-                    <ul>
-                        <li>Jesús Pérez - Fotógrafo</li>
-                        <li>María López - Diseñadora</li>
+        <!-- Sección Sobre Nosotros -->
+        <section id="about-us-page" class="page-section">
+            <h2 class="text-center mb-4">Sobre Nosotros</h2>
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <p class="lead text-center">Somos un equipo apasionado por la fotografía y el arte digital. Esta galería es un proyecto para compartir nuestra visión y conectar con otros entusiastas.</p>
+                    <h3 class="mt-4 mb-3">Nuestros Autores</h3>
+                    <ul class="list-group mb-4">
+                        <li class="list-group-item">
+                            <strong>Jesús García:</strong> Especialista en fotografía de paisajes y autos.
+                        </li>
+                        <li class="list-group-item">
+                            <strong>María López:</strong> Artista digital con enfoque en arte abstracto y urbano.
+                        </li>
+                        <li class="list-group-item">
+                            <strong>Carlos Ruiz:</strong> Fotógrafo de vida silvestre y documentalista.
+                        </li>
                     </ul>
-                </div>
-                <div class="col-md-6">
-                    <h4>Contacto</h4>
-                    <form id="contacto-form">
+
+                    <h3 class="mt-4 mb-3">Contáctanos</h3>
+                    <form id="contact-form" class="contact-form">
                         <div class="mb-3">
-                            <label for="nombre" class="form-label">Nombre</label>
-                            <input type="text" class="form-control" id="nombre" name="nombre" required>
+                            <label for="contactName" class="form-label">Nombre</label>
+                            <input type="text" class="form-control" id="contactName" required>
+                            <div class="invalid-feedback">Por favor, introduce tu nombre.</div>
                         </div>
                         <div class="mb-3">
-                            <label for="email" class="form-label">Correo electrónico</label>
-                            <input type="email" class="form-control" id="email" name="email" required>
+                            <label for="contactEmail" class="form-label">Correo Electrónico</label>
+                            <input type="email" class="form-control" id="contactEmail" required>
+                            <div class="invalid-feedback">Por favor, introduce un correo electrónico válido.</div>
                         </div>
                         <div class="mb-3">
-                            <label for="mensaje" class="form-label">Mensaje</label>
-                            <textarea class="form-control" id="mensaje" name="mensaje" rows="3" required></textarea>
+                            <label for="contactMessage" class="form-label">Mensaje</label>
+                            <textarea class="form-control" id="contactMessage" rows="5" required></textarea>
+                            <div class="invalid-feedback">Por favor, introduce tu mensaje.</div>
                         </div>
-                        <button type="submit" class="btn btn-primary">Enviar</button>
-                        <div id="form-mensaje" class="mt-2"></div>
+                        <button type="submit" class="btn btn-primary w-100">Enviar Mensaje</button>
+                        <div id="form-message" class="mt-3 text-center"></div>
                     </form>
                 </div>
             </div>
         </section>
+
     </main>
 
-    <footer class="bg-dark text-white text-center p-3">
-        &copy; 2024 Galería de Imágenes. Todos los derechos reservados.
+    <!-- Footer (Pie de página) -->
+    <footer class="bg-dark text-white text-center py-3 mt-5">
+        <p>&copy; 2025 Mi Galería de Imágenes. Todos los derechos reservados.</p>
     </footer>
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Lógica JS -->
-    <script src="app.js"></script>
+    <!-- Bootstrap JS Bundle (Popper included) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Datos de ejemplo para las imágenes
+        const images = [
+            {
+                id: 'img1',
+                src: 'autos3.png',
+                alt: 'autos',
+                category: 'Autos',
+                description: 'mustang 2018.',
+                author: 'Jesús García',
+                featured: true
+            },
+            {
+                id: 'img2',
+                src: '2.png',
+                alt: 'montañas en bosque natural ',
+                category: 'Paisajes',
+                description: 'hermosa vista de un boque de usa.',
+                author: 'María López',
+                featured: true
+           
+            }
+        ];
+
+        // Función para mostrar la sección correcta y ocultar las demás
+        function showSection(sectionId) {
+            document.querySelectorAll('.page-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.getElementById(sectionId).classList.add('active');
+
+            // Si es la página de la galería, renderizarla
+            if (sectionId === 'gallery-page') {
+                renderGallery(images); // Mostrar todas las imágenes por defecto
+            }
+            // Si es la página de inicio, renderizar las destacadas
+            if (sectionId === 'home-page') {
+                renderFeaturedImages();
+            }
+        }
+
+        // Función para renderizar las imágenes destacadas en la página de inicio
+        function renderFeaturedImages() {
+            const featuredContainer = document.getElementById('featured-images');
+            featuredContainer.innerHTML = ''; // Limpiar contenido anterior
+            const featured = images.filter(img => img.featured);
+
+            featured.forEach(img => {
+                const col = document.createElement('div');
+                col.classList.add('col-md-4', 'col-lg-3'); // Columnas responsivas para las imágenes destacadas
+                col.innerHTML = `
+                    <div class="card gallery-thumbnail" onclick="showImageDetail('${img.id}')">
+                        <img src="${img.src}" class="card-img-top" alt="${img.alt}">
+                        <div class="card-body">
+                            <h5 class="card-title">${img.category}</h5>
+                            <p class="card-text text-muted">${img.author}</p>
+                        </div>
+                    </div>
+                `;
+                featuredContainer.appendChild(col);
+            });
+        }
+
+        // Función para renderizar la galería de imágenes
+        function renderGallery(filteredImages) {
+            const galleryGrid = document.getElementById('gallery-grid');
+            galleryGrid.innerHTML = ''; // Limpiar contenido anterior
+
+            if (filteredImages.length === 0) {
+                galleryGrid.innerHTML = '<p class="col-12 text-center text-muted">No hay imágenes en esta categoría.</p>';
+                return;
+            }
+
+            filteredImages.forEach(img => {
+                const col = document.createElement('div');
+                col.classList.add('col-md-4', 'col-lg-3'); // Columnas responsivas para la galería
+                col.innerHTML = `
+                    <div class="card gallery-thumbnail" onclick="showImageDetail('${img.id}')">
+                        <img src="${img.src}" class="card-img-top" alt="${img.alt}">
+                        <div class="card-body">
+                            <h5 class="card-title">${img.category}</h5>
+                            <p class="card-text text-muted">${img.author}</p>
+                        </div>
+                    </div>
+                `;
+                galleryGrid.appendChild(col);
+            });
+        }
+
+        // Función para filtrar las imágenes por categoría
+        function filterImages(category) {
+            let filtered = images;
+            if (category !== 'all') {
+                filtered = images.filter(img => img.category === category);
+            }
+            renderGallery(filtered);
+        }
+
+        // Función para buscar imágenes por texto
+        function searchImages() {
+            const searchText = document.getElementById('search-input').value.toLowerCase();
+            const filteredImages = images.filter(img => 
+                img.alt.toLowerCase().includes(searchText) || 
+                img.description.toLowerCase().includes(searchText) || 
+                img.author.toLowerCase().includes(searchText)
+            );
+            renderGallery(filteredImages);
+        }
+
+        // Función para mostrar la vista detallada de una imagen
+        function showImageDetail(imageId) {
+            const image = images.find(img => img.id === imageId);
+            const detailView = document.getElementById('image-detail-view');
+            detailView.innerHTML = ''; // Limpiar contenido anterior
+
+            if (image) {
+                const detailContent = document.createElement('div');
+                detailContent.classList.add('col-md-10', 'col-lg-8');
+                detailContent.innerHTML = `
+                    <img src="${image.src}" alt="${image.alt}" class="img-fluid mb-4">
+                    <h3 class="mb-2">${image.alt}</h3>
+                    <p class="text-muted mb-2">Categoría: ${image.category}</p>
+                    <p class="text-muted mb-4">Autor: ${image.author}</p>
+                    <p>${image.description}</p>
+                `;
+                detailView.appendChild(detailContent);
+                showSection('image-detail-page'); // Mostrar la sección de detalle
+            } else {
+                detailView.innerHTML = '<p class="text-center text-danger">Imagen no encontrada.</p>';
+            }
+        }
+
+        // Función para validar el formulario de contacto
+        function validateContactForm(event) {
+            event.preventDefault(); // Prevenir el envío por defecto del formulario
+
+            const nameInput = document.getElementById('contactName');
+            const emailInput = document.getElementById('contactEmail');
+            const messageInput = document.getElementById('contactMessage');
+            const formMessage = document.getElementById('form-message');
+
+            let isValid = true;
+
+            // Validación del nombre
+            if (nameInput.value.trim() === '') {
+                nameInput.classList.add('is-invalid');
+                isValid = false;
+            } else {
+                nameInput.classList.remove('is-invalid');
+            }
+
+            // Validación del correo electrónico
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailPattern.test(emailInput.value.trim())) {
+                emailInput.classList.add('is-invalid');
+                isValid = false;
+            } else {
+                emailInput.classList.remove('is-invalid');
+            }
+
+            // Validación del mensaje
+            if (messageInput.value.trim() === '') {
+                messageInput.classList.add('is-invalid');
+                isValid = false;
+            } else {
+                messageInput.classList.remove('is-invalid');
+            }
+
+            if (isValid) {
+                formMessage.innerHTML = '<div class="alert alert-success" role="alert">¡Mensaje enviado con éxito! Nos pondremos en contacto contigo pronto.</div>';
+                document.getElementById('contact-form').reset(); // Limpiar el formulario
+                // Aquí podrías añadir la lógica para enviar los datos del formulario a un servidor
+            } else {
+                formMessage.innerHTML = '<div class="alert alert-danger" role="alert">Por favor, corrige los errores en el formulario.</div>';
+            }
+        }
+
+        // Event listener para el envío del formulario de contacto
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('contact-form').addEventListener('submit', validateContactForm);
+            showSection('home-page'); // Mostrar la página de inicio al cargar
+        });
+    </script>
 </body>
 </html>
